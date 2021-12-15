@@ -12,5 +12,8 @@
             "database": "db.sqlite3",
             "name": "Level Up"
         }
+    ],
+    "cSpell.words": [
+        "gametype"
     ]
 }

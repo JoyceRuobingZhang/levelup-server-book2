@@ -1,0 +1,23 @@
+[
+    {
+        "model": "levelupapi.status",
+        "pk": 1,
+        "fields": {
+            "title": "Open for signing up"
+        }
+    },
+    {
+        "model": "levelupapi.status",
+        "pk": 2,
+        "fields": {
+            "title": "In Progress"
+        }
+    },
+    {
+        "model": "levelupapi.status",
+        "pk": 3,
+        "fields": {
+            "title": "Closed"
+        }
+    }
+]

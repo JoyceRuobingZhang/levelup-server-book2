@@ -1,0 +1,25 @@
+[
+    {
+        "model": "levelupapi.event",
+        "pk": 1,
+        "fields": {
+            "name": "Who loves Catan?",
+            "time": "2021-12-15T20:00:42.874Z",
+            "game_id": 1,
+            "host_id": 1,
+            "status_id": 1
+        }
+    },
+    {
+        "model": "levelupapi.event",
+        "pk": 2,
+        "fields": {
+            "name": "Uno party",
+            "time": "2021-12-21T19:30:42.874Z",
+            "game_id": 2,
+            "host_id": 1,
+            "status_id": 1
+        }
+    }
+]
+
