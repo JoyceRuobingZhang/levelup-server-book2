@@ -14,4 +14,12 @@ class Event(models.Model):
     host = models.ForeignKey(Gamer, on_delete=CASCADE, related_name='hosts')
     game = models.ForeignKey(Game, on_delete=CASCADE, related_name='games')
     
+    @property
+    def joined(self):
+        return self.__joined
+
+    @joined.setter
+    def joined(self, value):
+        self.__joined = value
+    
     
