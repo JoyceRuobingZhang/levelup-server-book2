@@ -23,10 +23,13 @@ class ProfileView(ViewSet):
             Response -- JSON representation of user info and events
         """
         gamer = Gamer.objects.get(user=request.auth.user)
-        events = Event.objects.filter(signed_up_by=gamer)
+        attend_events = Event.objects.filter(signed_up_by=gamer)
+        host_events = Event.objects.filter(host=gamer)
 
-        events = EventSerializer(
-            events, many=True, context={'request': request})
+        attend_events = EventSerializer(
+            attend_events, many=True, context={'request': request})
+        host_events = EventSerializer(
+            host_events, many=True, context={'request': request})
         gamer = GamerSerializer(
             gamer, many=False, context={'request': request})
 
@@ -35,8 +38,9 @@ class ProfileView(ViewSet):
         # gamer - {an object}; events - [an array]
         profile = {}
         profile["gamer"] = gamer.data
-        profile["events"] = events.data
-
+        profile["attend_events"] = attend_events.data
+        profile["host_events"] = host_events.data
+        
         return Response(profile)
     
 

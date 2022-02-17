@@ -3,11 +3,11 @@ from django.core.exceptions import ValidationError
 from rest_framework import status
 from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
-from rest_framework.response import Response
-from rest_framework import serializers
+from rest_framework.response import Response # 📌 Response will attach the headers, status to the JSON data.
+from rest_framework import serializers # 📌 serializers will serialize the data (make it a dictionary), and make it JSON format.
 from rest_framework import status
 from levelupapi.models import Game, Gametype, Gamer
-
+from django.db.models import Count
 
 class GameView(ViewSet):
     """Level up games"""
@@ -30,7 +30,7 @@ class GameView(ViewSet):
 
         # Use the Django ORM to get the record from the database
         # whose `id` is what the client passed as the `gameTypeId` in the body of the request.
-        gametype = Gametype.objects.get(pk=request.data["gameTypeId"])
+        gametype = Gametype.objects.get(pk=request.data["gametype_id"])
         game.gametype = gametype
 
         # Try to save the new game to the database, then serialize the game instance as JSON, 
@@ -65,14 +65,16 @@ class GameView(ViewSet):
             return HttpResponseServerError(ex)
         
 
-    def update(self, request, pk=None):
+    def update(self, request, pk=None): 
         """Handle PUT requests for a game
 
         Returns:
             Response -- Empty body with 204 status code
         """
         gamer = Gamer.objects.get(user=request.auth.user)
-        gametype = Gametype.objects.get(pk=request.data["gameTypeId"])
+        # import pdb; pdb.set_trace()
+        game_type = Gametype.objects.get(pk=request.data["gametype_id"])
+        
 
         # Do mostly the same thing as POST, but instead of
         # creating a new instance of Game, get the game record
@@ -81,7 +83,7 @@ class GameView(ViewSet):
         game.name = request.data["name"]
         game.player_limit = request.data["player_limit"]
         game.created_by = gamer 
-        game.gametype = gametype
+        game.gametype = game_type
         # game.gamer = gamer
         # game.maker = request.data["maker"]
         # game.skill_level = request.data["skillLevel"]
@@ -93,14 +95,15 @@ class GameView(ViewSet):
         return Response({}, status=status.HTTP_204_NO_CONTENT)
     
 
-    def destroy(self, request, pk=None):
+    def destroy(self, request, pk=None): # or def destroy(self, *args, **kwargs):
+        # kwargs stands for keyword arguments
         """Handle DELETE requests for a single game
 
         Returns:
             Response -- 200, 404, or 500 status code
         """
         try:
-            game = Game.objects.get(pk=pk)
+            game = Game.objects.get(pk=pk) # pk = kwargs.pop(‘pk’)
             game.delete()
 
             return Response({}, status=status.HTTP_204_NO_CONTENT)
@@ -113,16 +116,14 @@ class GameView(ViewSet):
         
 
     def list(self, request):
-        """Handle GET requests to games resource
-
+        """ Handle GET requests to games resource
         Returns:
-            Response -- JSON serialized list of games
-        """
+            Response -- JSON serialized list of games  """
         # Get all game records from the database
         games = Game.objects.all()
+        # count how many events are there for each game
+        games = Game.objects.annotate(event_count=Count('events'))
         
-        gamer = Gamer.objects.get(user=request.auth.user) 
-
         # Support filtering games by type： http://localhost:8000/games?type=1
         # That URL will retrieve all tabletop games
         game_type = self.request.query_params.get('type', None)
@@ -140,12 +141,11 @@ class GameView(ViewSet):
     
     
 class GameSerializer(serializers.ModelSerializer):
-    """JSON serializer for games
-
+    """ JSON serializer for games
     Arguments:
-        serializer type
-    """
+        serializer type  """
     class Meta:
         model = Game
-        fields = ('id', 'name', 'player_limit', 'created_by', 'gametype')
-        depth = 2  # relationship depth
+        fields = ('id', 'name', 'player_limit', 'created_by', 'gametype', 'event_count') #the properties in the model
+        depth = 2  # relationship depth  <10
+        

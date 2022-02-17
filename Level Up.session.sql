@@ -11,8 +11,11 @@ SELECT * FROM levelupapi_event;
 
 
 update levelupapi_event
-set status_id = 3
-where id = 1;
+set time = 'joyce@nss.com'
+where id = 2;
+
+delete from levelupapi_event
+where id = 12;
 
 
 

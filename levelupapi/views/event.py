@@ -30,7 +30,7 @@ class EventView(ViewSet):
         # event.date = request.data["date"]
         # event.description = request.data["description"]
         # event.organizer = gamer
-        game = Game.objects.get(pk=request.data["gameId"])
+        game = Game.objects.get(pk=request.data["game_id"])
         event.game = game
         event_status = Status.objects.get(pk=1) #{ "id": 1, "title": "Open for signing up"}
         event.status = event_status
@@ -104,7 +104,6 @@ class EventView(ViewSet):
 
     def list(self, request):
         """Handle GET requests to events resource
-
         Returns:
             Response -- JSON serialized list of events
         """
@@ -119,19 +118,19 @@ class EventView(ViewSet):
         # Support filtering events by game
         game = self.request.query_params.get('gameId', None)
         if game is not None:
-            events = events.filter(game__id=type)  #❓❓❓❓❓❓❓❓❓❓❓
+            events = events.filter(game__id=game) 
+            # ⭕️get events by host: 
+            # events = Event.objects.filter(host__user=request.auth.user) 
+            # The use of the dunderscore(__) here represents a join operation(foreign-key table / cross table).
 
         serializer = EventSerializer(
             events, many=True, context={'request': request})
-        return Response(serializer.data)
-    
-    # get events by host: events = Event.objects.filter(host__user=request.auth.user)
-    # The use of the dunderscore (__) here represents a join operation (foreign-key table / cross table).
+        return Response(serializer.data)    
 
 
-    # ⭕️⭕️⭕️ Custom Action
+    # ⭕️⭕️⭕️ Custom Action for the specific url '/signup'
     @action(methods=['post', 'delete'], detail=True)
-    def signup(self, request, pk=None):
+    def signup(self, request, pk=None): 
         """Managing gamers signing up for events"""
         # Django uses the `Authorization` header to determine
         # which user is making the request to sign up
@@ -147,7 +146,7 @@ class EventView(ViewSet):
                 {'message': 'Event does not exist.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
+            
         # A gamer wants to sign up for an event
         if request.method == "POST":
             try:
@@ -181,7 +180,7 @@ class EventUserSerializer(serializers.ModelSerializer):
 # Gamer
 class EventGamerSerializer(serializers.ModelSerializer):
     """JSON serializer for event organizer"""
-    user = EventUserSerializer(many=False)
+    user = EventUserSerializer(many=False) # many=False means not an array, just a singular object
 
     class Meta:
         model = Gamer
@@ -204,11 +203,12 @@ class StatusSerializer(serializers.ModelSerializer):
 # Event
 class EventSerializer(serializers.ModelSerializer):
     """JSON serializer for events"""
-    host = EventGamerSerializer(many=False)
+    # Serializer with the dependencies goes at the end
+    host = EventGamerSerializer(many=False) # many=False means not an array, just a singular object
     game = GameSerializer(many=False)
     status = StatusSerializer(many=False)
 
     class Meta:
-        model = Event
+        model = Event # running Event.objects.all()
         fields = ('id', 'game', 'host',
                 'name', 'time', 'status', 'joined')

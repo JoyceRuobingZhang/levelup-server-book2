@@ -5,8 +5,8 @@ from rest_framework import routers
 from levelupapi.views import GameTypeView, GameView, EventView, ProfileView  # import view classes
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register(r'gameTypes', GameTypeView, 'gametype')  # part of the controller
-router.register(r'games', GameView, 'game')  # part of the controller
+router.register(r'gameTypes', GameTypeView, 'gametype')  # part of the controller.  "r" means regex
+router.register(r'games', GameView, 'game')  
 router.register(r'events', EventView, 'event')
 router.register(r'profile', ProfileView, 'profile')
 
